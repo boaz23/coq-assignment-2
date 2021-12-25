@@ -496,13 +496,25 @@ Fixpoint combine {X Y : Type} (lx : list X) (ly : list Y)
     Fill in the definition of [split] below.  Make sure it passes the
     given unit test. *)
 
-Fixpoint split {X Y : Type} (l : list (X*Y)) : (list X) * (list Y)
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint split {X Y : Type} (l : list (X*Y)) : (list X) * (list Y) :=
+  match l with
+  | [] => ([], [])
+  | (x, y) :: l' => (
+    let (lx, ly) := split l' in
+      (x :: lx, y :: ly)
+  )
+  end.
 
 Example test_split:
   split [(1,false);(2,false)] = ([1;2],[false;false]).
-Proof.
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
+Example test_split_right_inverse:
+  let (lx, ly) := (split [(1,false);(2,false)]) in
+  (combine lx ly) = [(1,false);(2,false)].
+Proof. reflexivity. Qed.
+Example test_split_left_inverse:
+  split (combine [1;2] [false;false]) = ([1;2],[false;false]).
+Proof. reflexivity. Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -708,13 +720,13 @@ Example test_filter_even_gt7_2 :
 Definition partition {X : Type}
                      (test : X -> bool)
                      (l : list X)
-                   : list X * list X
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+                   : list X * list X :=
+  (filter test l, filter (fun x => negb (test x)) l).
 
 Example test_partition1: partition odd [1;2;3;4;5] = ([1;3;5], [2;4]).
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 Example test_partition2: partition (fun x => false) [5;9;0] = ([], [5;9;0]).
-(* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -761,10 +773,22 @@ Proof. reflexivity. Qed.
     Show that [map] and [rev] commute.  You may need to define an
     auxiliary lemma. *)
 
+Theorem map_app_split : forall {X Y : Type} (f : X -> Y) (l1 : list X) (l2 : list X),
+  map f (l1 ++ l2) = (map f l1) ++ (map f l2).
+Proof.
+  intros. induction l1 as [| x1 l' IHl'].
+  - reflexivity.
+  - simpl. rewrite <- IHl'. reflexivity.
+Qed.
+
 Theorem map_rev : forall (X Y : Type) (f : X -> Y) (l : list X),
   map f (rev l) = rev (map f l).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. induction l as [| x l' IHl'].
+  - reflexivity.
+  - simpl. rewrite -> map_app_split.
+    simpl. rewrite IHl'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (flat_map)
@@ -780,13 +804,16 @@ Proof.
 *)
 
 Fixpoint flat_map {X Y: Type} (f: X -> list Y) (l: list X)
-                   : list Y
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+                   : list Y :=
+  match l with
+  | [] => []
+  | x :: l' => (f x) ++ (flat_map f l')
+  end.
 
 Example test_flat_map1:
   flat_map (fun n => [n;n;n]) [1;5;4]
   = [1; 1; 1; 5; 5; 5; 4; 4; 4].
- (* FILL IN HERE *) Admitted.
+Proof. reflexivity. Qed.
 (** [] *)
 
 (** Lists are not the only inductive type for which [map] makes sense.
@@ -939,7 +966,10 @@ Proof. reflexivity. Qed.
 Theorem fold_length_correct : forall X (l : list X),
   fold_length l = length l.
 Proof.
-(* FILL IN HERE *) Admitted.
+  intros. induction l as [| x l' IHl'].
+  - reflexivity.
+  - simpl. rewrite <- IHl'. reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (fold_map)
@@ -985,8 +1015,10 @@ Definition prod_curry {X Y Z : Type}
     the theorems below to show that the two are inverses. *)
 
 Definition prod_uncurry {X Y Z : Type}
-  (f : X -> Y -> Z) (p : X * Y) : Z
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+  (f : X -> Y -> Z) (p : X * Y) : Z :=
+  match p with
+  | (x, y) => f x y
+  end.
 
 (** As a (trivial) example of the usefulness of currying, we can use it
     to shorten one of the examples that we saw above: *)
@@ -1005,13 +1037,16 @@ Theorem uncurry_curry : forall (X Y Z : Type)
                         x y,
   prod_curry (prod_uncurry f) x y = f x y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  reflexivity.
+Qed.
 
 Theorem curry_uncurry : forall (X Y Z : Type)
                         (f : (X * Y) -> Z) (p : X * Y),
   prod_uncurry (prod_curry f) p = f p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  destruct p as [x y].
+  - reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced, optional (nth_error_informal)
