@@ -1,0 +1,47 @@
+Theorem split_not_empty_right : forall {X Y : Type} (p : (X * Y)) (l : list (X * Y)) (l1 : list X),
+  split (p :: l) <> (l1, []).
+Proof.
+  intros.
+  destruct p as [x y] eqn:E_p. simpl.
+  destruct (split l) as [lx ly] eqn:E_split.
+  intros H. discriminate H.
+Qed.
+
+Theorem split_not_empty_left : forall {X Y : Type} (p : (X * Y)) (l : list (X * Y)) (l2 : list Y),
+  split (p :: l) <> ([], l2).
+Proof.
+  intros.
+  destruct p as [x y] eqn:E_p. simpl.
+  destruct (split l) as [lx ly] eqn:E_split.
+  intros H. discriminate H.
+Qed.
+
+Theorem pair_lists_eq : forall {X Y : Type} (lx1 lx2 : list X) (ly1 ly2 : list Y),
+  (lx1, ly1) = (lx2, ly2) -> (lx1 = lx2) /\ (ly1 = ly2).
+Proof.
+  intros. injection H.
+  intros H_ly1_ly2 H_lx1_lx2.
+  split.
+  - exact H_lx1_lx2.
+  - exact H_ly1_ly2.
+Qed.
+
+Theorem and_eq_list_pair : forall {X Y : Type} (lx1 lx2 : list X) (ly1 ly2 : list Y),
+  (lx1 = lx2) /\ (ly1 = ly2) -> (lx1, ly1) = (lx2, ly2).
+Proof.
+  intros. destruct H as [H_lx1_lx2 H_ly1_ly2].
+  rewrite <- H_lx1_lx2. rewrite <- H_ly1_ly2.
+  reflexivity.
+Qed.
+
+Theorem pair_cons_eq : forall {X Y : Type}
+  (lx1 lx2 : list X) (x : X)
+  (ly1 ly2 : list Y) (y : Y),
+    (x :: lx1, y :: ly1) = (x :: lx2, y :: ly2) ->
+    (lx1, ly1) = (lx2, ly2).
+Proof.
+  intros. injection H.
+  intros H_ly1_ly2 H_lx1_lx2.
+  rewrite <- H_lx1_lx2. rewrite <- H_ly1_ly2.
+  reflexivity.
+Qed.
