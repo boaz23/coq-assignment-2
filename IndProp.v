@@ -916,28 +916,97 @@ End R.
 
 Inductive subseq : list nat -> list nat -> Prop :=
   | subseq_nil_nil : subseq [] []
-  | subseq_cons (n : nat) (l1 l2 : list nat) :
-      subseq l1 l2 -> subseq (n :: l1) (n :: l2)
   | subseq_any_before (n : nat) (l1 l2 : list nat) :
       subseq l1 l2 -> subseq l1 (n :: l2)
+  | subseq_cons_same (n : nat) (l1 l2 : list nat) :
+      subseq l1 l2 -> subseq (n :: l1) (n :: l2)
+
+  (*
+    A weird definition.
+    AVOID it for now.
+
+  | subseq_any_before (n : nat) (l1 l2 : list nat) :
+    subseq l1 (n :: l2) -> subseq l1 l2
+  | subseq_cons_same (n : nat) (l1 l2 : list nat) :
+      subseq (n :: l1) (n :: l2) -> subseq l1 l2
+  *)
 .
 
 Example subseq_enclose : subseq [1;2] [5;1;3;2;6].
 Proof.
-  apply subseq_any_before. apply subseq_cons.
-  apply subseq_any_before. apply subseq_cons.
+  apply subseq_any_before. apply subseq_cons_same.
+  apply subseq_any_before. apply subseq_cons_same.
   apply subseq_any_before. apply subseq_nil_nil.
+Qed.
+
+Theorem subseq_nil_l : forall (l : list nat),
+  subseq [] l.
+Proof.
+  intros l. induction l as [| n l' IHl'].
+  - apply subseq_nil_nil.
+  - apply subseq_any_before. apply IHl'.
+Qed.
+
+Theorem subseq_not_nil_not_subseq_nil : forall (l : list nat),
+  l <> [] -> ~(subseq l []).
+Proof.
+  unfold not. intros l H_not_nil H_subseq_of_nil.
+  apply H_not_nil. inversion H_subseq_of_nil.
+  reflexivity.
+Qed.
+
+Theorem subseq_tail_cons_left : forall (n : nat) (l1 l2 : list nat),
+  subseq (n :: l1) l2 -> subseq l1 l2.
+Proof.
+  intros n l1 l2 E. remember (n :: l1) as l_n_l1 eqn:E_l_n_l1.
+  induction E as [| n' l1' l2' E' IHE' | n' l1' l2' E' IHE'].
+  - discriminate E_l_n_l1.
+  - apply subseq_any_before. apply IHE'. apply E_l_n_l1.
+  - injection E_l_n_l1. intros H_l1'_eq_l1 H_n'_eq_n.
+    rewrite <- H_l1'_eq_l1. apply subseq_any_before. exact E'.
+Qed.
+
+Theorem subseq_tail_both_cons_same : forall (n : nat) (l1 l2 : list nat),
+  subseq (n :: l1) (n :: l2) -> subseq l1 l2.
+Proof.
+  intros n l1 l2 E.
+  inversion E as [
+    |
+    n' l1' l2' E' H_l1'_n_cons_l1 H_n'_eq_n |
+    n' l1' l2' E' IHE'
+  ].
+  - rename H into H_l2'_eq_l2.
+    rewrite <- H_l2'_eq_l2.
+    apply subseq_tail_cons_left in E' as H_subseq_l1_l2.
+    rewrite -> H_l2'_eq_l2. exact H_subseq_l1_l2.
+  - exact E'.
 Qed.
 
 Theorem subseq_refl : forall (l : list nat), subseq l l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros l. induction l as [| n l' IHl'].
+  - apply subseq_nil_nil.
+  - apply subseq_cons_same. apply IHl'.
+Qed.
 
 Theorem subseq_app : forall (l1 l2 l3 : list nat),
   subseq l1 l2 ->
   subseq l1 (l2 ++ l3).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  (*
+  intros l1. induction l1 as [| n1 l1' IHl1'].
+  - intros l2 l3. intros H_nil_l2. apply subseq_nil_l.
+  - intros l2. induction l2 as [| n2 l2'].
+    + intros l3. intros H1. (* TODO: do with backwards reasoning *)
+      apply (subseq_not_nil_not_subseq_nil (n1 :: l1')) in H1.
+      destruct H1. discriminate.
+    + intros l3. destruct (n1 =? n2) as [|] eqn:E_n1_eqb_n2.
+      * apply eqb_eq in E_n1_eqb_n2 as H_n1_eq_n2.
+        rewrite <- H_n1_eq_n2. simpl.
+        intros H_subseq_n1_l1'__n1_l2'.
+        apply (subseq_cons_same n1 l1' l2') in H_subseq_n1_l1'__n1_l2'.
+  *)
+Admitted.
 
 Theorem subseq_trans : forall (l1 l2 l3 : list nat),
   subseq l1 l2 ->
