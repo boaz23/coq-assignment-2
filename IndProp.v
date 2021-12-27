@@ -915,8 +915,19 @@ End R.
       is a subsequence of [l3], then [l1] is a subsequence of [l3]. *)
 
 Inductive subseq : list nat -> list nat -> Prop :=
-(* FILL IN HERE *)
+  | subseq_nil_nil : subseq [] []
+  | subseq_cons (n : nat) (l1 l2 : list nat) :
+      subseq l1 l2 -> subseq (n :: l1) (n :: l2)
+  | subseq_any_before (n : nat) (l1 l2 : list nat) :
+      subseq l1 l2 -> subseq l1 (n :: l2)
 .
+
+Example subseq_enclose : subseq [1;2] [5;1;3;2;6].
+Proof.
+  apply subseq_any_before. apply subseq_cons.
+  apply subseq_any_before. apply subseq_cons.
+  apply subseq_any_before. apply subseq_nil_nil.
+Qed.
 
 Theorem subseq_refl : forall (l : list nat), subseq l l.
 Proof.
