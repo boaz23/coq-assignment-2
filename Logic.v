@@ -450,7 +450,9 @@ Definition manual_grade_for_double_neg_inf : option (nat*string) := None.
 Theorem contrapositive : forall (P Q : Prop),
   (P -> Q) -> (~Q -> ~P).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros P Q H_P_imp_Q. unfold not. intros H_Q_imp_F H_P.
+  apply H_Q_imp_F. apply H_P_imp_Q. apply H_P.
+Qed.
 (** [] *)
 
 (** **** Exercise: 1 star, standard, optional (not_both_true_and_false) *)
@@ -737,7 +739,10 @@ Proof.
 Theorem dist_not_exists : forall (X:Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros X P H_all_x_P H_exists_x_not_P.
+  destruct H_exists_x_not_P as [x H_x_not_P].
+  apply H_x_not_P. apply H_all_x_P.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (dist_exists_or)
@@ -867,15 +872,32 @@ Proof.
     lemma below.  (Of course, your definition should _not_ just
     restate the left-hand side of [All_In].) *)
 
-Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop
-  (* REPLACE THIS LINE WITH ":= _your_definition_ ." *). Admitted.
+Fixpoint All {T : Type} (P : T -> Prop) (l : list T) : Prop :=
+  match l with
+  | [] => True
+  | x :: l' => (P x) /\ (All P l')
+  end.
 
 Theorem All_In :
   forall T (P : T -> Prop) (l : list T),
     (forall x, In x l -> P x) <->
     All P l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros. split.
+  - intros H. induction l as [| x' l' IHl'].
+    + reflexivity.
+    + simpl. split.
+      * apply H. simpl. left. reflexivity.
+      * apply IHl'. intros x H_In_x_l'.
+        apply H. simpl. right. apply H_In_x_l'.
+  - intros H. induction l as [| x' l' IHl'].
+    + simpl. intros x H_False. destruct H_False.
+    + intros x. simpl. intros H_In_x_l. destruct H_In_x_l as [x'_eq_x | H_In_x_l'].
+      * rewrite <- x'_eq_x. apply H.
+      * apply IHl'.
+        -- apply H.
+        -- apply H_In_x_l'.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (combine_odd_even)
@@ -1217,9 +1239,41 @@ Definition tr_rev {X} (l : list X) : list X :=
 
     Prove that the two definitions are indeed equivalent. *)
 
+(* Copied (and adopted) from my Lists.v solution *)
+Theorem app_nil_r' : forall (X:Type), forall l:list X,
+  l ++ [] = l.
+Proof.
+  intros X l. induction l as [| n l' IHl'].
+  - reflexivity.
+  - simpl. rewrite -> IHl'. reflexivity.
+Qed.
+
+(* Copied (and adopted) from Lists.v *)
+Theorem app_assoc' : forall A (l m n:list A),
+  l ++ m ++ n = (l ++ m) ++ n.
+Proof.
+  intros A l1 l2 l3. induction l1 as [| x l1' IHl1'].
+  - (* l1 = nil *)
+    reflexivity.
+  - (* l1 = cons n l1' *)
+    simpl. rewrite -> IHl1'. reflexivity.
+Qed.
+
+Theorem rev_append_rev : forall (X : Type) (l1 l2 : list X),
+  @rev_append X l1 l2 = (@rev X l1) ++ l2.
+Proof.
+  intros X l1. induction l1 as [| x1 l1' IHl1'].
+  - reflexivity.
+  - intros l2. simpl. rewrite <- app_assoc'. simpl. apply IHl1'.
+Qed.
+
 Theorem tr_rev_correct : forall X, @tr_rev X = @rev X.
 Proof.
-(* FILL IN HERE *) Admitted.
+  intros. apply functional_extensionality. intros l.
+  assert (H_app_nil_l: (rev l ++ []) =(rev l)).
+  { apply app_nil_r'. }
+  rewrite <- H_app_nil_l. unfold tr_rev. apply rev_append_rev.
+Qed.
 (** [] *)
 
 (* ================================================================= *)
@@ -1664,8 +1718,11 @@ Qed.
 Theorem excluded_middle_irrefutable: forall (P:Prop),
   ~ ~ (P \/ ~ P).
 Proof.
-  unfold not. intros P H.
-  (* FILL IN HERE *) Admitted.
+  unfold not. intros P H. fold (~P) in H.
+  apply H. apply (restricted_excluded_middle P false). split.
+  - intros H_P. exfalso. apply H. left. apply H_P.
+  - intros H_contra. discriminate H_contra.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (not_exists_dist)
@@ -1686,7 +1743,9 @@ Theorem not_exists_dist :
   forall (X:Type) (P : X -> Prop),
     ~ (exists x, ~ P x) -> (forall x, P x).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  unfold excluded_middle. unfold not.
+  intros H_excluded_middle X P. intros H_not_exists_x_not_P_x x.
+Admitted.
 (** [] *)
 
 (** **** Exercise: 5 stars, standard, optional (classical_axioms)

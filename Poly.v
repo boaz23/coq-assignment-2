@@ -384,15 +384,25 @@ Definition list123''' := [1; 2; 3].
     chapter, for practice with polymorphism.  Complete the proofs
     below. *)
 
+(* Copied (and adopted) from my Lists.v solution *)
 Theorem app_nil_r : forall (X:Type), forall l:list X,
   l ++ [] = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros X l. induction l as [| n l' IHl'].
+  - reflexivity.
+  - simpl. rewrite -> IHl'. reflexivity.
+Qed.
 
+(* Copied (and adopted) from Lists.v *)
 Theorem app_assoc : forall A (l m n:list A),
   l ++ m ++ n = (l ++ m) ++ n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros A l1 l2 l3. induction l1 as [| x l1' IHl1'].
+  - (* l1 = nil *)
+    reflexivity.
+  - (* l1 = cons n l1' *)
+    simpl. rewrite -> IHl1'. reflexivity.
+Qed.
 
 Lemma app_length : forall (X:Type) (l1 l2 : list X),
   length (l1 ++ l2) = length l1 + length l2.
