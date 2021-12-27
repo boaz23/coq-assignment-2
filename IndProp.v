@@ -972,11 +972,10 @@ Proof.
   intros n l1 l2 E.
   inversion E as [
     |
-    n' l1' l2' E' H_l1'_n_cons_l1 H_n'_eq_n |
-    n' l1' l2' E' IHE'
+    n' l1' l2' E' H_l1'_n_cons_l1 [H_n'_eq_n H_l2'_eq_l2] |
+    n' l1' l2' E' [H_n'_eq_n H_l1'_eq_l1] [H_l2'_eq_l2]
   ].
-  - rename H into H_l2'_eq_l2.
-    rewrite <- H_l2'_eq_l2.
+  - rewrite <- H_l2'_eq_l2.
     apply subseq_tail_cons_left in E' as H_subseq_l1_l2.
     rewrite -> H_l2'_eq_l2. exact H_subseq_l1_l2.
   - exact E'.
