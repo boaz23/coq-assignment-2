@@ -1744,8 +1744,13 @@ Theorem not_exists_dist :
     ~ (exists x, ~ P x) -> (forall x, P x).
 Proof.
   unfold excluded_middle. unfold not.
-  intros H_excluded_middle X P. intros H_not_exists_x_not_P_x x.
-Admitted.
+  intros H_excluded_middle X P. intros H_not_exists_x_st_not_Px x.
+  specialize H_excluded_middle with (P := P x) as H_excluded_middle_Px.
+  destruct H_excluded_middle_Px as [H_Px | H_not_Px].
+  - apply H_Px.
+  - exfalso. apply H_not_exists_x_st_not_Px.
+    exists x. apply H_not_Px.
+Qed.
 (** [] *)
 
 (** **** Exercise: 5 stars, standard, optional (classical_axioms)
