@@ -605,10 +605,14 @@ Proof.
 (** **** Exercise: 3 stars, advanced (ev_ev__ev) *)
 Theorem ev_ev__ev : forall n m,
   ev (n+m) -> ev n -> ev m.
-  (* Hint: There are two pieces of evidence you could attempt to induct upon
-      here. If one doesn't work, try the other. *)
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m H_ev_n_plus_m H_ev_n.
+  induction H_ev_n as [| n' H_ev_n' IH_ev_n].
+  - assert (H_ev_m := H_ev_n_plus_m). simpl in H_ev_m.
+    apply H_ev_m.
+  - assert (H_ev_SS_n'_plus_m := H_ev_n_plus_m). simpl in H_ev_SS_n'_plus_m.
+    apply IH_ev_n. apply evSS_ev. exact H_ev_SS_n'_plus_m.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, standard, optional (ev_plus_plus)
