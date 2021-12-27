@@ -929,52 +929,12 @@ Proof.
   apply subseq_any_before. apply subseq_nil_nil.
 Qed.
 
-Theorem list_cons_not_nil : forall (X : Type) (x : X) (l : list X),
-  (x :: l) <> [].
-Proof.
-  discriminate.
-Qed.
-
 Theorem subseq_nil_l : forall (l : list nat),
   subseq [] l.
 Proof.
   intros l. induction l as [| n l' IHl'].
   - apply subseq_nil_nil.
   - apply subseq_any_before. apply IHl'.
-Qed.
-
-Theorem subseq_not_nil_not_subseq_nil : forall (l : list nat),
-  l <> [] -> ~(subseq l []).
-Proof.
-  unfold not. intros l H_not_nil H_subseq_of_nil.
-  apply H_not_nil. inversion H_subseq_of_nil.
-  reflexivity.
-Qed.
-
-Theorem subseq_tail_cons_left : forall (n : nat) (l1 l2 : list nat),
-  subseq (n :: l1) l2 -> subseq l1 l2.
-Proof.
-  intros n l1 l2 E. remember (n :: l1) as l_n_l1 eqn:E_l_n_l1.
-  induction E as [| n' l1' l2' E' IHE' | n' l1' l2' E' IHE'].
-  - discriminate E_l_n_l1.
-  - apply subseq_any_before. apply IHE'. apply E_l_n_l1.
-  - injection E_l_n_l1. intros H_l1'_eq_l1 H_n'_eq_n.
-    rewrite <- H_l1'_eq_l1. apply subseq_any_before. exact E'.
-Qed.
-
-Theorem subseq_tail_both_cons_same : forall (n : nat) (l1 l2 : list nat),
-  subseq (n :: l1) (n :: l2) -> subseq l1 l2.
-Proof.
-  intros n l1 l2 E.
-  inversion E as [
-    |
-    n' l1' l2' E' H_l1'_n_cons_l1 [H_n'_eq_n H_l2'_eq_l2] |
-    n' l1' l2' E' [H_n'_eq_n H_l1'_eq_l1] [H_l2'_eq_l2]
-  ].
-  - rewrite <- H_l2'_eq_l2.
-    apply subseq_tail_cons_left in E' as H_subseq_l1_l2.
-    rewrite -> H_l2'_eq_l2. exact H_subseq_l1_l2.
-  - exact E'.
 Qed.
 
 Theorem subseq_refl : forall (l : list nat), subseq l l.
