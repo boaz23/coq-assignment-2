@@ -993,20 +993,12 @@ Theorem subseq_app : forall (l1 l2 l3 : list nat),
   subseq l1 l2 ->
   subseq l1 (l2 ++ l3).
 Proof.
-  (*
-  intros l1. induction l1 as [| n1 l1' IHl1'].
-  - intros l2 l3. intros H_nil_l2. apply subseq_nil_l.
-  - intros l2. induction l2 as [| n2 l2'].
-    + intros l3. intros H1. (* TODO: do with backwards reasoning *)
-      apply (subseq_not_nil_not_subseq_nil (n1 :: l1')) in H1.
-      destruct H1. discriminate.
-    + intros l3. destruct (n1 =? n2) as [|] eqn:E_n1_eqb_n2.
-      * apply eqb_eq in E_n1_eqb_n2 as H_n1_eq_n2.
-        rewrite <- H_n1_eq_n2. simpl.
-        intros H_subseq_n1_l1'__n1_l2'.
-        apply (subseq_cons_same n1 l1' l2') in H_subseq_n1_l1'__n1_l2'.
-  *)
-Admitted.
+  intros l1 l2 l3 E.
+  induction E as [| n' l1' l_app' E' IHE' | n' l1' l_app' E' IHE'].
+  - apply subseq_nil_l.
+  - simpl. apply subseq_any_before. exact IHE'.
+  - simpl. apply subseq_cons_same. exact IHE'.
+Qed.
 
 Theorem subseq_trans : forall (l1 l2 l3 : list nat),
   subseq l1 l2 ->
