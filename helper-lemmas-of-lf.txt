@@ -1,0 +1,32 @@
+and_commut : forall P Q : Prop, P /\ Q -> Q /\ P.
+and_assoc : forall P Q R : Prop, P /\ (Q /\ R) -> (P /\ Q) /\ R.
+factor_is_O: forall n m : nat, n = 0 \/ m = 0 -> n * m = 0.
+zero_or_succ : forall n : nat, n = 0 \/ n = S (pred n).
+mult_is_O : forall n m, n * m = 0 -> n = 0 \/ m = 0.
+or_commut : forall P Q : Prop, P \/ Q  -> Q \/ P.
+not_implies_our_not : forall (P:Prop), ~ P -> (forall (Q:Prop), P -> Q).
+contradiction_implies_anything : forall P Q : Prop, (P /\ ~P) -> Q.
+double_neg: forall P : Prop, P -> ~~P.
+contrapositive : forall (P Q : Prop), (P -> Q) -> (~Q -> ~P).
+not_both_true_and_false : forall P : Prop, ~ (P /\ ~P).
+not_true_is_false : forall b : bool, b <> true -> b = false.
+iff_sym : forall P Q : Prop, (P <-> Q) -> (Q <-> P).
+not_true_iff_false : forall b, b <> true <-> b = false.
+iff_refl : forall P : Prop, P <-> P.
+iff_trans : forall P Q R : Prop, (P <-> Q) -> (Q <-> R) -> (P <-> R).
+or_distributes_over_and : forall P Q R : Prop, P \/ (Q /\ R) <-> (P \/ Q) /\ (P \/ R).
+mul_eq_0 : forall n m, n * m = 0 <-> n = 0 \/ m = 0.
+or_assoc : forall P Q R : Prop, P \/ (Q \/ R) <-> (P \/ Q) \/ R.
+dist_not_exists : forall (X:Type) (P : X -> Prop), (forall x, P x) -> ~ (exists x, ~ P x).
+dist_exists_or : forall (X:Type) (P Q : X -> Prop), (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+leb_plus_exists : forall n m, n <=? m = true -> exists x, m = n+x.
+plus_exists_le : forall n m, (exists x, m = n+x) -> n <=? m = true.
+In_map_iff : forall (A B : Type) (f : A -> B) (l : list A) (y : B), In y (map f l) <-> exists x, f x = y /\ In x l.
+In_app_iff : forall A l l' (a:A), In a (l++l') <-> In a l \/ In a l'.
+All_In : forall T (P : T -> Prop) (l : list T), (forall x, In x l -> P x) <-> All P l.
+in_not_nil : forall A (x : A) (l : list A), In x l -> l <> [].
+tr_rev_correct : forall X, @tr_rev X = @rev X.
+forallb_true_iff : forall X test (l : list X), forallb test l = true <-> All (fun x => test x = true) l.
+restricted_excluded_middle : forall P b, (P <-> b = true) -> P \/ ~ P.
+restricted_excluded_middle_eq : forall (n m : nat), n = m \/ n <> m.
+excluded_middle_irrefutable: forall (P:Prop), ~ ~ (P \/ ~ P).
