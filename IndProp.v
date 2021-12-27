@@ -920,16 +920,6 @@ Inductive subseq : list nat -> list nat -> Prop :=
       subseq l1 l2 -> subseq l1 (n :: l2)
   | subseq_cons_same (n : nat) (l1 l2 : list nat) :
       subseq l1 l2 -> subseq (n :: l1) (n :: l2)
-
-  (*
-    A weird definition.
-    AVOID it for now.
-
-  | subseq_any_before (n : nat) (l1 l2 : list nat) :
-    subseq l1 (n :: l2) -> subseq l1 l2
-  | subseq_cons_same (n : nat) (l1 l2 : list nat) :
-      subseq (n :: l1) (n :: l2) -> subseq l1 l2
-  *)
 .
 
 Example subseq_enclose : subseq [1;2] [5;1;3;2;6].
@@ -937,6 +927,12 @@ Proof.
   apply subseq_any_before. apply subseq_cons_same.
   apply subseq_any_before. apply subseq_cons_same.
   apply subseq_any_before. apply subseq_nil_nil.
+Qed.
+
+Theorem list_cons_not_nil : forall (X : Type) (x : X) (l : list X),
+  (x :: l) <> [].
+Proof.
+  discriminate.
 Qed.
 
 Theorem subseq_nil_l : forall (l : list nat),
@@ -1004,9 +1000,26 @@ Theorem subseq_trans : forall (l1 l2 l3 : list nat),
   subseq l2 l3 ->
   subseq l1 l3.
 Proof.
-  (* Hint: be careful about what you are doing induction on and which
-     other things need to be generalized... *)
-  (* FILL IN HERE *) Admitted.
+  (* Induction on (subseq l2 l3) intro *)
+  intros l1 l2 l3 E_l1_l2 E_l2_l3.
+  generalize dependent l1.
+  induction E_l2_l3 as [
+    |
+    n' l2' l3' E_l2_l3' IH_trans |
+    n' l2' l3' E_l2_l3' IH_trans
+  ].
+  - intros l1. intros E_l1_nil. apply E_l1_nil.
+  - intros l1. intros E_l1_l2'.
+    apply subseq_any_before. apply IH_trans. apply E_l1_l2'.
+  - intros.
+    inversion E_l1_l2 as [
+      |
+      n'' l1'' l2'' E_l1_l2' [H_l1''_eq_l1] [H_n''_eq_n' H_l2''_eq_l2'] |
+      n'' l1'' l2'' E_l1''_l2' H_l1_cons_n''_l1'' [H_n''_eq_n' H_l2''_eq_l2']
+    ].
+    + apply subseq_any_before. apply IH_trans. apply E_l1_l2'.
+    + apply subseq_cons_same. apply IH_trans. apply E_l1''_l2'.
+Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (R_provability2)
