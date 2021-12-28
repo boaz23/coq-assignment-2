@@ -916,7 +916,7 @@ End R.
 
 Inductive subseq : list nat -> list nat -> Prop :=
   | subseq_nil_nil : subseq [] []
-  | subseq_any_before (n : nat) (l1 l2 : list nat) :
+  | subseq_cons_any_before (n : nat) (l1 l2 : list nat) :
       subseq l1 l2 -> subseq l1 (n :: l2)
   | subseq_cons_same (n : nat) (l1 l2 : list nat) :
       subseq l1 l2 -> subseq (n :: l1) (n :: l2)
@@ -924,9 +924,9 @@ Inductive subseq : list nat -> list nat -> Prop :=
 
 Example subseq_enclose : subseq [1;2] [5;1;3;2;6].
 Proof.
-  apply subseq_any_before. apply subseq_cons_same.
-  apply subseq_any_before. apply subseq_cons_same.
-  apply subseq_any_before. apply subseq_nil_nil.
+  apply subseq_cons_any_before. apply subseq_cons_same.
+  apply subseq_cons_any_before. apply subseq_cons_same.
+  apply subseq_cons_any_before. apply subseq_nil_nil.
 Qed.
 
 Theorem subseq_nil_l : forall (l : list nat),
@@ -934,7 +934,7 @@ Theorem subseq_nil_l : forall (l : list nat),
 Proof.
   intros l. induction l as [| n l' IHl'].
   - apply subseq_nil_nil.
-  - apply subseq_any_before. apply IHl'.
+  - apply subseq_cons_any_before. apply IHl'.
 Qed.
 
 Theorem subseq_refl : forall (l : list nat), subseq l l.
@@ -951,7 +951,7 @@ Proof.
   intros l1 l2 l3 E.
   induction E as [| n' l1' l_app' E' IHE' | n' l1' l_app' E' IHE'].
   - apply subseq_nil_l.
-  - simpl. apply subseq_any_before. exact IHE'.
+  - simpl. apply subseq_cons_any_before. exact IHE'.
   - simpl. apply subseq_cons_same. exact IHE'.
 Qed.
 
@@ -970,14 +970,14 @@ Proof.
   ].
   - intros l1. intros E_l1_nil. apply E_l1_nil.
   - intros l1. intros E_l1_l2'.
-    apply subseq_any_before. apply IH_trans. apply E_l1_l2'.
+    apply subseq_cons_any_before. apply IH_trans. apply E_l1_l2'.
   - intros.
     inversion E_l1_l2 as [
       |
       n'' l1'' l2'' E_l1_l2' [H_l1''_eq_l1] [H_n''_eq_n' H_l2''_eq_l2'] |
       n'' l1'' l2'' E_l1''_l2' H_l1_cons_n''_l1'' [H_n''_eq_n' H_l2''_eq_l2']
     ].
-    + apply subseq_any_before. apply IH_trans. apply E_l1_l2'.
+    + apply subseq_cons_any_before. apply IH_trans. apply E_l1_l2'.
     + apply subseq_cons_same. apply IH_trans. apply E_l1''_l2'.
 Qed.
 (** [] *)
